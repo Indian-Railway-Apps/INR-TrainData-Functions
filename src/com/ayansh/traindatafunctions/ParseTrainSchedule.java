@@ -31,12 +31,12 @@ public class ParseTrainSchedule extends DefaultHandler {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes){
 		
-		if(localName.equals("TD")
+		if(qName.equals("TD")
 		  ){
 			reading = true;
 			data = "";
 		}
-		else if(localName.equals("TR")){
+		else if(qName.equals("TR")){
 			train_stop = new TrainStop(trainNo);
 			reading = false;
 			index = 0;
@@ -50,7 +50,7 @@ public class ParseTrainSchedule extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException{
 		
-		if (localName.equals("TD")){
+		if (qName.equals("TD")){
 			value = data.replaceAll("  ", "");
 			data = "";
 			switch (index){
@@ -67,7 +67,7 @@ public class ParseTrainSchedule extends DefaultHandler {
 			}
 			index++;
 		}
-		else if (localName.equals("TR")){
+		else if (qName.equals("TR")){
 			if(!train_stop.station_code.equals("")){
 				train_stops.add(train_stop);
 			}

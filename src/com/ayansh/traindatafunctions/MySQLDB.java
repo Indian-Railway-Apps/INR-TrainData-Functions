@@ -93,4 +93,31 @@ public class MySQLDB implements DBServer {
 		return trainStops;
 	}
 
+	@Override
+	public List<String> getPendingTrainList(int max) throws SQLException {
+
+		List<String> trainList = new ArrayList<String>();
+		
+		Statement stmt = mySQL.createStatement();
+		
+		String sql = "SELECT t.TrainNo from ValidTrains as t LEFT OUTER JOIN TrainStops as s "
+				+ "on t.TrainNo = s.TrainNo where s.TrainNo is null limit " + max;
+
+		ResultSet result = stmt.executeQuery(sql);
+		
+		if(result.next()){
+			
+			do{
+				
+				trainList.add(result.getString(1));
+				
+			}while(result.next());
+			
+		}
+		
+		result.close();
+		
+		return trainList;
+	}
+
 }

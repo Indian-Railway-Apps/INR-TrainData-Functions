@@ -41,11 +41,24 @@ public class Main {
 		
 		JSONObject input = new JSONObject(args[1]);
 		
-		if(code.contentEquals("TrainStops")){
+		if(code.contentEquals("FetchAllTrainStops")){
+			
+			try {
+				app.fetchAllTrainStops(input);
+			} catch (SQLException | InterruptedException e) {
+				System.out.println("Error Occured!");
+				System.out.println(e.getMessage());
+				finish();
+			}
+			
+		}
+		
+		if(code.contentEquals("FetchTrainStops")){
 			
 			try {
 				app.fetchTrainStops(input);
 			} catch (Exception e) {
+				System.out.println("Error Occured!");
 				System.out.println(e.getMessage());
 				finish();
 			}
@@ -56,6 +69,7 @@ public class Main {
 			try {
 				app.deleteTrainStops(input);
 			} catch (SQLException e) {
+				System.out.println("Error Occured!");
 				System.out.println(e.getMessage());
 				finish();
 			}

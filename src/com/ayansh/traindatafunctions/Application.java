@@ -5,6 +5,7 @@ package com.ayansh.traindatafunctions;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -94,6 +95,35 @@ public class Application {
 	public List<TrainStop> getTrainStops(String trainNo) throws SQLException {
 		
 		return db.getTrainStops(trainNo);
+		
+	}
+
+	public void fetchAllTrainStops(JSONObject input) throws SQLException, InterruptedException {
+		
+		int max = input.getInt("Max");
+		
+		List<String> trainList = db.getPendingTrainList(max);
+		
+		Iterator<String> i = trainList.iterator();
+		
+		while(i.hasNext()){
+			
+			JSONObject inp = new JSONObject();
+			inp.put("TrainNo", i.next());
+			
+			try {
+				
+				fetchTrainStops(inp);
+				
+				System.out.println("Fetch completed for " + inp);
+				
+			} catch (Exception e) {
+				System.out.println("Error while Fetching for " + inp);
+			}
+			
+			Thread.sleep(15 * 1000);	//15 seconds
+			
+		}
 		
 	}
 }

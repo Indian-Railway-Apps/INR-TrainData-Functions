@@ -15,4 +15,6 @@ public interface DBServer {
 
 	public List<TrainStop> getTrainStops(String trainNo) throws SQLException;
 
+	public List<String> getPendingTrainList(int max) throws SQLException;
+
 }

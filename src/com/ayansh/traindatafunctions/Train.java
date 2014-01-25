@@ -9,6 +9,7 @@ package com.ayansh.traindatafunctions;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.xml.sax.InputSource;
 
 public class Train {
 	
@@ -52,11 +54,13 @@ public class Train {
         
         try{
         	
-        	SAXParserFactory parserFactor = SAXParserFactory.newInstance();
-            SAXParser parser = parserFactor.newSAXParser();
+        	SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+            SAXParser parser = parserFactory.newSAXParser();
         	
         	ParseTrainSchedule my_handler = new ParseTrainSchedule(train_number);
-        	parser.parse(response_string, my_handler);
+        	
+        	InputSource is = new InputSource(new StringReader(response_string));
+        	parser.parse(is, my_handler);
         	train_stops = my_handler.train_stops;
         }
         catch(Exception e){

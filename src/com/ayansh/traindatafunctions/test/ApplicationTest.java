@@ -67,7 +67,7 @@ public class ApplicationTest {
 	public final void testDeleteTrainStops() {
 	
 		JSONObject input = new JSONObject();
-		input.put("TrainNo", "12627");
+		input.put("TrainNo", "12628");
 		
 		Application app = Application.getInstance();
 		
