@@ -75,6 +75,19 @@ public class Main {
 			}
 		}
 		
+		if(code.contentEquals("CorrectBookCancInfo")){
+			
+			try {
+				app.correctBookCancInfo();
+				System.out.println("Update Completed");
+			} catch (SQLException e) {
+				System.out.println("Error Occured!");
+				System.out.println(e.getMessage());
+				finish();
+			}
+			
+		}
+		
 	}
 
 	private static void finish() {

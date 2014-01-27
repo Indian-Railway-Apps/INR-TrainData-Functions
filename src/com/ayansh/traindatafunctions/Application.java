@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Properties;
 
 import org.json.JSONObject;
@@ -122,6 +123,115 @@ public class Application {
 			}
 			
 			Thread.sleep(15 * 1000);	//15 seconds
+			
+		}
+		
+	}
+
+	public void correctBookCancInfo() throws SQLException {
+		
+		List<AvailabilityInfo> masterList = db.getMasterList();
+		
+		Iterator<AvailabilityInfo> i = masterList.iterator();
+		
+		while(i.hasNext()){
+			
+			AvailabilityInfo ml = i.next();
+			
+			int racQuota = db.getRACQuota(ml);
+			
+			List<AvailabilityInfo> availInfo = db.getAvailabilityInfo(ml);
+			
+			ListIterator<AvailabilityInfo> iter = availInfo.listIterator();
+			
+			while(iter.hasNext()){
+				
+				AvailabilityInfo ai = iter.next();
+				//System.out.println("Processing Record No: " + ai.RecordNo);
+				
+				if(ai.Availability.contains("Charting") || ai.Availability.contains("TRAIN")){
+					continue;
+				}
+				
+				// Calculate Avail on Absolute Scale !
+				if(ai.grossAvType.contentEquals("RAC")){
+					ai.grossAvCount = 0 - ai.grossAvCount;
+				}
+				
+				if(ai.grossAvType.contentEquals("WL")){
+					ai.grossAvCount = 0 - racQuota - ai.grossAvCount;
+				}
+				
+				if(ai.netAvType.contentEquals("RAC")){
+					ai.netAvCount = 0 - ai.netAvCount;
+				}
+				
+				if(ai.netAvType.contentEquals("WL")){
+					ai.netAvCount = 0 - racQuota - ai.netAvCount;
+				}
+				
+				// -1 becoz after next we already moved to next index and prev will give current only
+				int prevIndex = iter.previousIndex() - 1;
+				
+				if(prevIndex >= 0){
+					// WE found prev data
+					AvailabilityInfo prevAI = availInfo.get(prevIndex);
+					
+					if(ai.grossAvType.contentEquals("REG")){
+						
+						int tempNetAvCount = ai.netAvCount - prevAI.netAvCount;
+						if(tempNetAvCount > 0){
+							// More booking happened
+							ai.grossAvCount = prevAI.grossAvCount;
+						}
+						else{
+							// more Cancellations happened
+							ai.grossAvCount = prevAI.grossAvCount + tempNetAvCount;
+						}
+						
+					}
+					
+					// Calculate Bookings
+					if(prevAI.grossAvCount > ai.grossAvCount){
+						ai.bookings = prevAI.grossAvCount - ai.grossAvCount;
+					}
+					else{
+						ai.bookings = 0;
+					}
+					
+					// Calculate Cancellations
+					if(prevAI.grossAvCount < ai.grossAvCount){
+						ai.cancellations = ai.grossAvCount - prevAI.grossAvCount;
+					}
+					else{
+						ai.cancellations = (prevAI.grossAvCount - ai.grossAvCount) - (prevAI.netAvCount - ai.netAvCount);
+					}
+					
+				}
+				else{
+					// We did not find prev data. This is first data
+					ai.bookings = ai.cancellations = 0;
+					
+					if(ai.grossAvType.contentEquals("REG")){
+						ai.grossAvCount = 0 - racQuota - 300;
+					}
+				}
+				
+				// Special Case
+				if(ai.bookings < 0){
+					ai.bookings = 0;
+				}
+				
+				if(ai.cancellations < 0){
+					ai.cancellations = 0;
+				}
+				
+				// Now Save
+				db.saveAvailabilityInfo(ai);
+				
+				System.out.println("Record No: " + ai.RecordNo + " is updated");
+				
+			}
 			
 		}
 		

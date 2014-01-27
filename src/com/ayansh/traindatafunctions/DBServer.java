@@ -17,4 +17,12 @@ public interface DBServer {
 
 	public List<String> getPendingTrainList(int max) throws SQLException;
 
+	public List<AvailabilityInfo> getMasterList() throws SQLException;
+
+	public List<AvailabilityInfo> getAvailabilityInfo(AvailabilityInfo ai) throws SQLException;
+
+	public int getRACQuota(AvailabilityInfo ml) throws SQLException;
+
+	public void saveAvailabilityInfo(AvailabilityInfo ai) throws SQLException;
+
 }
