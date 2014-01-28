@@ -128,9 +128,11 @@ public class Application {
 		
 	}
 
-	public void correctBookCancInfo() throws SQLException {
+	public void correctBookCancInfo(JSONObject input) throws SQLException {
 		
-		List<AvailabilityInfo> masterList = db.getMasterList();
+		String trainNo = input.getString("TrainNo");
+		
+		List<AvailabilityInfo> masterList = db.getMasterList(trainNo);
 		
 		Iterator<AvailabilityInfo> i = masterList.iterator();
 		

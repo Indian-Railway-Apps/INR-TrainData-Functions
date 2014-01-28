@@ -17,7 +17,7 @@ public interface DBServer {
 
 	public List<String> getPendingTrainList(int max) throws SQLException;
 
-	public List<AvailabilityInfo> getMasterList() throws SQLException;
+	public List<AvailabilityInfo> getMasterList(String trainNo) throws SQLException;
 
 	public List<AvailabilityInfo> getAvailabilityInfo(AvailabilityInfo ai) throws SQLException;
 

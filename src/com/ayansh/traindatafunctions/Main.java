@@ -78,7 +78,7 @@ public class Main {
 		if(code.contentEquals("CorrectBookCancInfo")){
 			
 			try {
-				app.correctBookCancInfo();
+				app.correctBookCancInfo(input);
 				System.out.println("Update Completed");
 			} catch (SQLException e) {
 				System.out.println("Error Occured!");

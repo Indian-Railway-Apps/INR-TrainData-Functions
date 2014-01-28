@@ -121,13 +121,20 @@ public class MySQLDB implements DBServer {
 	}
 
 	@Override
-	public List<AvailabilityInfo> getMasterList() throws SQLException {
+	public List<AvailabilityInfo> getMasterList(String trainNo) throws SQLException {
 		
 		List<AvailabilityInfo> availInfo = new ArrayList<AvailabilityInfo>();
 		
 		Statement stmt = mySQL.createStatement();
 		
-		String sql = "SELECT DISTINCT TrainNo, TravelDate, Class FROM AvailabilityInfo";
+		String sql;
+		
+		if (trainNo.contentEquals("")) {
+			sql = "SELECT DISTINCT TrainNo, TravelDate, Class FROM AvailabilityInfo";
+		} else {
+			sql = "SELECT DISTINCT TrainNo, TravelDate, Class FROM AvailabilityInfo WHERE TrainNo = '"
+					+ trainNo + "'";
+		}
 
 		ResultSet result = stmt.executeQuery(sql);
 		
