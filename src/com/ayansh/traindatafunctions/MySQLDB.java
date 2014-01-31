@@ -101,7 +101,7 @@ public class MySQLDB implements DBServer {
 		Statement stmt = mySQL.createStatement();
 		
 		String sql = "SELECT t.TrainNo from ValidTrains as t LEFT OUTER JOIN TrainStops as s "
-				+ "on t.TrainNo = s.TrainNo where s.TrainNo is null limit " + max;
+				+ "on t.TrainNo = s.TrainNo where s.TrainNo is null and t.Active = 'X' limit " + max;
 
 		ResultSet result = stmt.executeQuery(sql);
 		
