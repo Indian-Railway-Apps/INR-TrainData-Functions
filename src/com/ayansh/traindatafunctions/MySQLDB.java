@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -232,6 +233,43 @@ public class MySQLDB implements DBServer {
 				+ ai.netAvCount + ", Bookings = " + ai.bookings
 				+ ", Cancellations = " + ai.cancellations
 				+ " WHERE RecordNo = " + ai.RecordNo;
+
+		st.executeUpdate(sql);
+		
+	}
+
+	@Override
+	public HashMap<Integer,String> getPNRList() throws SQLException {
+		
+		HashMap<Integer,String> pnrList = new HashMap<Integer,String>();
+		
+		Statement stmt = (Statement) mySQL.createStatement();
+		
+		String sql = "SELECT ID, PNR From QueryHistory WHERE PNR <> '' and TravelDate < current_date and ActualStatus is null";
+
+		ResultSet result = stmt.executeQuery(sql);
+
+		if (result.next()) {
+
+			do {
+				pnrList.put(result.getInt(1), result.getString(2));
+			} while (result.next());
+
+		}
+		
+		result.close();
+		
+		return pnrList;
+
+	}
+
+	@Override
+	public void updateQueryHistory(int id, String currentStatus) throws SQLException {
+		
+		Statement st = (Statement) mySQL.createStatement();
+
+		String sql = "UPDATE QueryHistory SET ActualStatus = '" + currentStatus
+				+ "' WHERE ID = " + id;
 
 		st.executeUpdate(sql);
 		

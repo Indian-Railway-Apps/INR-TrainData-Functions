@@ -3,13 +3,25 @@
  */
 package com.ayansh.traindatafunctions;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 
@@ -238,4 +250,134 @@ public class Application {
 		}
 		
 	}
+
+	public void updateActualPNRStatus(JSONObject input) throws SQLException {
+		
+		// Get Query History
+		HashMap<Integer,String> pnrList = db.getPNRList();
+		
+		Iterator<Integer> i = pnrList.keySet().iterator();
+		
+		while(i.hasNext()){
+			
+			int id = i.next();
+			String pnr = pnrList.get(id);
+			
+			// Get PNR Status
+			
+			try {
+				
+				String currentStatus = getPNRStatus(pnr);
+				
+				db.updateQueryHistory(id,currentStatus);
+				
+			} catch (Exception e) {
+				// Its OK. Proceed with next
+				System.out.println("Error fetching PNR Status of: " + pnr + ". Error: " + e.getMessage());
+			}
+				
+		}
+		
+	}
+
+	private String getPNRStatus(String pnr) throws Exception {
+		
+		String response_string = "";
+		String[] result1, result2;
+		
+		// Create a new HttpClient and Post Header
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost("http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_28688.cgi");
+
+		// Try to Post the PNR
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		nameValuePairs.add(new BasicNameValuePair("lccp_pnrno1", pnr));
+		nameValuePairs.add(new BasicNameValuePair("lccp_cap_val", "51213"));
+		nameValuePairs.add(new BasicNameValuePair("lccp_capinp_val", "51213"));
+		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		httppost.setHeader("Referer","http://www.indianrail.gov.in/pnr_Enq.html");
+
+		// Execute HTTP Post Request
+		HttpResponse response = httpclient.execute(httppost);
+
+		if (response != null) {
+			// Read
+
+			InputStream in = response.getEntity().getContent();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			
+			boolean read1 = false, read2 = false;
+			String line = null, response_string1 = "", response_string2 = "";
+			while ((line = reader.readLine()) != null) {
+
+				response_string = response_string.concat(line);
+				response_string = response_string.concat("\n");
+
+				if (line.contains("PNR Number :")) {
+					read1 = true;
+				}
+				if (line.contains("<FORM NAME=\"RouteInfo\" METHOD=\"POST\"")) {
+					read1 = false;
+				}
+				if (line.contains("Get Schedule")) {
+					read2 = true;
+					line = "";
+				}
+				if (line.contains("Charting Status")) {
+					read2 = false;
+				}
+				if (read1) {
+					response_string1 = response_string1.concat(line);
+					response_string1 = response_string1.concat("\n");
+				}
+				if (read2) {
+					if (line.contains("<font size=1>")) {
+						line = "";
+					}
+					if (line.contains("<TABLE width=")) {
+						line = "<table border=" + '\"' + "1" + '\"' + ">";
+					}
+					if (line.contains("<td width=")) {
+						line = line.replaceFirst(line.substring(3, 15), "");
+					}
+					response_string2 = response_string2.concat(line);
+					response_string2 = response_string2.concat("\n");
+				}
+			}
+
+			in.close();
+
+			String identifier = "<TD class=\"table_border_both\">";
+			result1 = response_string1.split(identifier, 10);
+			result2 = response_string2.split(identifier, 10);
+
+			int index = 1;
+			int size = result1.length;
+			while (index < size) {
+				result1[index] = result1[index].replaceAll("</TD>", "");
+				result1[index] = result1[index].replaceAll("\n", "");
+				result1[index] = result1[index].trim();
+				index++;
+			}
+			index = 1;
+			size = result2.length;
+			while (index < size) {
+				result2[index] = result2[index].replaceAll("</TD>", "");
+				result2[index] = result2[index].replaceAll("\n", "");
+				result2[index] = result2[index].replaceAll("<TR>", "");
+				result2[index] = result2[index].replaceAll("</TR>", "");
+				result2[index] = result2[index].replaceAll("<B>", "");
+				result2[index] = result2[index].replaceAll("</B>", "");
+				result2[index] = result2[index].trim();
+				index++;
+			}
+			
+			String currentStatus = result2[3];
+			return currentStatus;
+		}
+		
+		return null;
+		
+	}
 }
+	

@@ -1,6 +1,7 @@
 package com.ayansh.traindatafunctions;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 public interface DBServer {
@@ -24,5 +25,9 @@ public interface DBServer {
 	public int getRACQuota(AvailabilityInfo ml) throws SQLException;
 
 	public void saveAvailabilityInfo(AvailabilityInfo ai) throws SQLException;
+
+	public HashMap<Integer,String> getPNRList() throws SQLException;
+
+	public void updateQueryHistory(int id, String currentStatus) throws SQLException;
 
 }

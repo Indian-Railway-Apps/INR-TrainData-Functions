@@ -88,6 +88,17 @@ public class Main {
 			
 		}
 		
+		if(code.contentEquals("UpdateActualPNRStatus")){
+			
+			try {
+				app.updateActualPNRStatus(input);
+			} catch (SQLException e) {
+				System.out.println("Error Occured!");
+				System.out.println(e.getMessage());
+				finish();
+			}
+			
+		}
 	}
 
 	private static void finish() {
