@@ -267,7 +267,8 @@ public class Application {
 			
 			try {
 				
-				String currentStatus = getPNRStatus(pnr);
+				JSONObject pnrData = getPNRStatus(pnr);
+				String currentStatus = pnrData.getString("CurrentStatus");
 				
 				db.updateQueryHistory(id,currentStatus);
 				
@@ -280,7 +281,7 @@ public class Application {
 		
 	}
 
-	private String getPNRStatus(String pnr) throws Exception {
+	public JSONObject getPNRStatus(String pnr) throws Exception {
 		
 		String response_string = "";
 		String[] result1, result2;
@@ -372,12 +373,31 @@ public class Application {
 				index++;
 			}
 			
+			String train_number = result1[1].replaceAll("\\*", "");
+			String from = result1[4];
+			String to = result1[5];
+			String date = result1[3];
+			date = date.replaceAll(" ", "");
+			
 			String currentStatus = result2[3];
-			return currentStatus;
+			String travelClass = result1[8];
+			travelClass = travelClass.replaceAll(" ", "");
+			travelClass = travelClass.substring(0, 2);
+			
+			JSONObject pnrData = new JSONObject();
+			pnrData.put("TrainNo", train_number);
+			pnrData.put("FromStation", from);
+			pnrData.put("ToStation", to);
+			pnrData.put("TravelDate", date);
+			pnrData.put("CurrentStatus", currentStatus);
+			pnrData.put("TravelClass", travelClass);
+			
+			return pnrData;
 		}
 		
 		return null;
 		
 	}
+
 }
 	
