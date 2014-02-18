@@ -286,9 +286,11 @@ public class Application {
 		String response_string = "";
 		String[] result1, result2;
 		
+		String url = properties.getProperty("pnr_query_url");
+		
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_28688.cgi");
+		HttpPost httppost = new HttpPost(url);
 
 		// Try to Post the PNR
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
@@ -383,6 +385,13 @@ public class Application {
 			String travelClass = result1[8];
 			travelClass = travelClass.replaceAll(" ", "");
 			travelClass = travelClass.substring(0, 2);
+			
+			// remove all spaces
+			currentStatus = currentStatus.replaceAll(" ", "");
+			
+			if(currentStatus.contains("W/L")){
+				currentStatus = currentStatus.replace("W/L", "WL");
+			}
 			
 			JSONObject pnrData = new JSONObject();
 			pnrData.put("TrainNo", train_number);
