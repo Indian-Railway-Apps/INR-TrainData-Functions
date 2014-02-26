@@ -19,6 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -286,7 +287,7 @@ public class Application {
 		String response_string = "";
 		String[] result1, result2;
 		
-		String url = properties.getProperty("pnr_query_url");
+		String url = getPNREnquiryURL();
 		
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
@@ -405,6 +406,32 @@ public class Application {
 		}
 		
 		return null;
+		
+	}
+
+	private String getPNREnquiryURL() throws Exception {
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet("http://ayansh.com/pnr-prediction/get_pnr_enquiry_url.php");
+		
+		// Execute HTTP Post Request
+		HttpResponse response = httpclient.execute(httpget);
+
+		// Open Stream for Reading.
+		InputStream is = response.getEntity().getContent();
+
+		// Get Input Stream Reader.
+		InputStreamReader isr = new InputStreamReader(is);
+
+		BufferedReader reader = new BufferedReader(isr);
+
+		StringBuilder builder = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			builder.append(line);
+		}
+		
+		return builder.toString();
 		
 	}
 
