@@ -41,8 +41,8 @@ public class Main {
 		
 		JSONObject input = new JSONObject(args[1]);
 		
-		if(code.contentEquals("UpdatePNREnquiryURL")){
-			
+		if (code.contentEquals("UpdatePNREnquiryURL")) {
+
 			try {
 				app.updatePNREnquiryURL();
 			} catch (Exception e) {
@@ -50,7 +50,29 @@ public class Main {
 				System.out.println(e.getMessage());
 				finish();
 			}
-			
+
+		}
+		
+		if (code.contentEquals("FetchPNRDetails")) {
+
+			try {
+
+				String pnr = input.getString("PNR");
+				if (pnr == null || pnr.contentEquals("")) {
+					System.out.println("Incorrect PNR");
+					finish();
+				}
+
+				JSONObject pnrData = app.getPNRStatus(pnr);
+				System.out.println(pnrData.toString());
+				finish();
+
+			} catch (Exception e) {
+				System.out.println("Error Occured!");
+				System.out.println(e.getMessage());
+				finish();
+			}
+
 		}
 		
 		if(code.contentEquals("FetchAllTrainStops")){

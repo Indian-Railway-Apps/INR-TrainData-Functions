@@ -85,5 +85,20 @@ public class ApplicationTest {
 		}
 		
 	}
+	
+	@Test
+	public final void testPNREnquiryURL() {
+		
+		Application app = Application.getInstance();
+		
+		try{
+			
+			app.updatePNREnquiryURL();
+			
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+	}
 
 }

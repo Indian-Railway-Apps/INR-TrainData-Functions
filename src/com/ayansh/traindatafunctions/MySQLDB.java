@@ -275,4 +275,16 @@ public class MySQLDB implements DBServer {
 		
 	}
 
+	@Override
+	public void updatePNREnquiryURL(String url) throws SQLException {
+		
+		Statement st = (Statement) mySQL.createStatement();
+
+		String sql = "UPDATE Options SET Value = '" + url
+				+ "' WHERE Name = 'PNR_Enquiry_URL'";
+
+		st.executeUpdate(sql);
+		
+	}
+
 }

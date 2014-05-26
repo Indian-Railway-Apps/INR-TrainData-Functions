@@ -268,7 +268,8 @@ public class Application {
 			
 			try {
 				
-				String currentStatus = getPNRStatus(pnr);
+				JSONObject pnrData = getPNRStatus(pnr);
+				String currentStatus = pnrData.getString("CurrentStatus");
 				
 				db.updateQueryHistory(id,currentStatus);
 				
@@ -281,14 +282,16 @@ public class Application {
 		
 	}
 
-	private String getPNRStatus(String pnr) throws Exception {
+	public JSONObject getPNRStatus(String pnr) throws Exception {
 		
 		String response_string = "";
 		String[] result1, result2;
 		
+		String url = getPNREnquiryURL();
+		
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_28688.cgi");
+		HttpPost httppost = new HttpPost(url);
 
 		// Try to Post the PNR
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
@@ -373,8 +376,33 @@ public class Application {
 				index++;
 			}
 			
+			String train_number = result1[1].replaceAll("\\*", "");
+			String from = result1[4];
+			String to = result1[5];
+			String date = result1[3];
+			date = date.replaceAll(" ", "");
+			
 			String currentStatus = result2[3];
-			return currentStatus;
+			String travelClass = result1[8];
+			travelClass = travelClass.replaceAll(" ", "");
+			travelClass = travelClass.substring(0, 2);
+			
+			// remove all spaces
+			currentStatus = currentStatus.replaceAll(" ", "");
+			
+			if(currentStatus.contains("W/L")){
+				currentStatus = currentStatus.replace("W/L", "WL");
+			}
+			
+			JSONObject pnrData = new JSONObject();
+			pnrData.put("TrainNo", train_number);
+			pnrData.put("FromStation", from);
+			pnrData.put("ToStation", to);
+			pnrData.put("TravelDate", date);
+			pnrData.put("CurrentStatus", currentStatus);
+			pnrData.put("TravelClass", travelClass);
+			
+			return pnrData;
 		}
 		
 		return null;
@@ -385,11 +413,73 @@ public class Application {
 		
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet("");
-
+		HttpGet httpget = new HttpGet("http://www.indianrail.gov.in/pnr_Enq.html");
+		
 		// Execute HTTP Post Request
 		HttpResponse response = httpclient.execute(httpget);
+
+		// Open Stream for Reading.
+		InputStream is = response.getEntity().getContent();
+
+		// Get Input Stream Reader.
+		InputStreamReader isr = new InputStreamReader(is);
+
+		BufferedReader reader = new BufferedReader(isr);
+		
+		String url = null;
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			
+			if (line.contains("<form id=") &&
+				line.contains("http://www.indianrail.gov.in/cgi_bin/") &&
+				line.contains("pnr_stat")){
+				
+				int begin = line.indexOf("action=");
+				int end = line.indexOf(".cgi", begin);
+				
+				url = line.substring(begin + 8, end + 4);
+				break;
+				
+			}
+			
+		}
+		
+		if(url == null){
+			throw new Exception("Could not read URL");
+		}
+		
+		if(url != null){
+			
+			db.updatePNREnquiryURL(url);
+			
+		}
 		
 	}
+
+	private String getPNREnquiryURL() throws Exception {
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet("http://ayansh.com/pnr-prediction/get_pnr_enquiry_url.php");
+		
+		// Execute HTTP Post Request
+		HttpResponse response = httpclient.execute(httpget);
+
+		// Open Stream for Reading.
+		InputStream is = response.getEntity().getContent();
+
+		// Get Input Stream Reader.
+		InputStreamReader isr = new InputStreamReader(is);
+
+		BufferedReader reader = new BufferedReader(isr);
+
+		StringBuilder builder = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			builder.append(line);
+		}
+		
+		return builder.toString();
+		
+	}
+
 }
-	

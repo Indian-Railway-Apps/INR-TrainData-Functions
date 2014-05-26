@@ -30,4 +30,6 @@ public interface DBServer {
 
 	public void updateQueryHistory(int id, String currentStatus) throws SQLException;
 
+	public void updatePNREnquiryURL(String url) throws SQLException;
+
 }
