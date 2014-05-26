@@ -19,6 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -377,6 +378,17 @@ public class Application {
 		}
 		
 		return null;
+		
+	}
+
+	public void updatePNREnquiryURL() throws Exception {
+		
+		// Create a new HttpClient and Post Header
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet("");
+
+		// Execute HTTP Post Request
+		HttpResponse response = httpclient.execute(httpget);
 		
 	}
 }

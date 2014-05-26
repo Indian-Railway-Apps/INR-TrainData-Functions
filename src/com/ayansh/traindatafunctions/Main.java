@@ -41,6 +41,18 @@ public class Main {
 		
 		JSONObject input = new JSONObject(args[1]);
 		
+		if(code.contentEquals("UpdatePNREnquiryURL")){
+			
+			try {
+				app.updatePNREnquiryURL();
+			} catch (Exception e) {
+				System.out.println("Error Occured!");
+				System.out.println(e.getMessage());
+				finish();
+			}
+			
+		}
+		
 		if(code.contentEquals("FetchAllTrainStops")){
 			
 			try {
