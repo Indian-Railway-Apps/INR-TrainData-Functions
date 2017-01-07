@@ -65,8 +65,8 @@ public class Application {
 		pwd = properties.getProperty("pwd");
 		
 		if(user == null || user.contentEquals("")){
-			user = "admin_GUser";
-			pwd = "PaHxvQ0TJC2L";
+			user = "appuser";
+			pwd = "x8w4ySzIV";
 		}
 		
 		db.setUpConnection(user,pwd);
